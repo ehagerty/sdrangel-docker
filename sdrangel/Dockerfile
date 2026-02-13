@@ -97,7 +97,8 @@ RUN sudo apt-get update && sudo apt-get -y install \
     libfaad-dev \
     libflac-dev \
     zlib1g-dev \
-    libhamlib-dev
+    libhamlib-dev \
+    libunwind-dev
 
 # Install compiled libraries dependencies
 # Codec2
