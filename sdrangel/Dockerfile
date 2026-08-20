@@ -278,26 +278,6 @@ RUN cd ggmorse \
     && cmake -Wno-dev -DGGMORSE_BUILD_TESTS=OFF -DGGMORSE_BUILD_EXAMPLES=OFF -DCMAKE_INSTALL_PREFIX=/opt/install/ggmorse .. \
     && make -j${nb_cores} install
 
-# SDRplay special
-FROM base AS sdrplay
-ENV SDRPLAY_MAJ 3.15
-ENV SDRPLAY_MIN .2
-ENV SDRPLAY_LIB libsdrplay_api
-WORKDIR /opt/build
-RUN mkdir -p /opt/install/libsdrplay/include \
-    && mkdir -p /opt/install/libsdrplay/lib \
-    && mkdir -p /opt/build/sdrplay
-RUN cd sdrplay \
-    && wget https://www.sdrplay.com/software/SDRplay_RSP_API-Linux-${SDRPLAY_MAJ}${SDRPLAY_MIN}.run \
-    && export ARCH=$(uname -m | sed s/aarch64/arm64/ | sed s/x86_64/amd64/) \
-    && sh ./SDRplay_RSP_API-Linux-${SDRPLAY_MAJ}${SDRPLAY_MIN}.run --tar xvf \
-    && cp ${ARCH}/${SDRPLAY_LIB}.so.${SDRPLAY_MAJ} /opt/install/libsdrplay/lib/. \
-    && chmod 644 /opt/install/libsdrplay/lib/${SDRPLAY_LIB}.so.${SDRPLAY_MAJ} \
-    && ln -s /opt/install/libsdrplay/lib/${SDRPLAY_LIB}.so.${SDRPLAY_MAJ} /opt/install/libsdrplay/lib/${SDRPLAY_LIB}.so.3 \
-    && ln -s /opt/install/libsdrplay/lib/${SDRPLAY_LIB}.so.3 /opt/install/libsdrplay/lib/${SDRPLAY_LIB}.so \
-    && cp inc/* /opt/install/libsdrplay/include \
-    && chmod 644 /opt/install/libsdrplay/include/*
-
 # Airspy
 FROM base_clones AS airspy
 ARG nb_cores
@@ -425,7 +405,6 @@ COPY --from=codec2 --chown=sdr /opt/install /opt/install
 COPY --from=libsigmf --chown=sdr /opt/install /opt/install
 COPY --from=sgp4 --chown=sdr /opt/install /opt/install
 COPY --from=ggmorse --chown=sdr /opt/install /opt/install
-COPY --from=sdrplay --chown=sdr /opt/install /opt/install
 COPY --from=airspy --chown=sdr /opt/install /opt/install
 COPY --from=rtlsdr --chown=sdr /opt/install /opt/install
 COPY --from=plutosdr --chown=sdr /opt/install /opt/install
